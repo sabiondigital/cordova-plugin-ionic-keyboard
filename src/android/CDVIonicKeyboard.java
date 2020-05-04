@@ -10,18 +10,25 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 import android.content.Context;
+import android.content.pm.PackageItemInfo;
+import android.content.pm.ApplicationInfo;
 import android.graphics.Rect;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.inputmethod.InputMethodManager;
+import android.view.inputmethod.InputMethodInfo;
 
 // import additionally required classes for calculating screen height
 import android.view.Display;
 import android.graphics.Point;
 import android.os.Build;
+import android.os.IBinder;
 import android.widget.FrameLayout;
+import android.provider.Settings;
+
+import java.util.List;
 
 public class CDVIonicKeyboard extends CordovaPlugin {
     private OnGlobalLayoutListener list;
@@ -55,12 +62,24 @@ public class CDVIonicKeyboard extends CordovaPlugin {
         if ("show".equals(action)) {
             cordova.getThreadPool().execute(new Runnable() {
                 public void run() {
-                    ((InputMethodManager) cordova.getActivity().getSystemService(Context.INPUT_METHOD_SERVICE)).toggleSoftInput(0, InputMethodManager.HIDE_IMPLICIT_ONLY);
+                    InputMethodManager imeManager = ((InputMethodManager) cordova.getActivity().getSystemService(Context.INPUT_METHOD_SERVICE));
+                    List<InputMethodInfo> InputMethods = imeManager.getEnabledInputMethodList();
+                    final int N = InputMethods.size();
+                    for (int i = 0; i < N; i++) {
+                        InputMethodInfo imi = InputMethods.get(i);
+                        if (imi.getId().equals(Settings.Secure.getString(cordova.getActivity().getContentResolver(), Settings.Secure.DEFAULT_INPUT_METHOD))) {
+                            if ((imi.getServiceInfo().applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 0) {
+                                imeManager.showInputMethodPicker();
+                                break;
+                            }
+                        }
+                    }
                     callbackContext.success(); // Thread-safe.
                 }
             });
             return true;
         }
+
         if ("init".equals(action)) {
             cordova.getThreadPool().execute(new Runnable() {
                 public void run() {
