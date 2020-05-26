@@ -70,8 +70,7 @@ public class CDVIonicKeyboard extends CordovaPlugin {
                         if (imi.getId().equals(Settings.Secure.getString(cordova.getActivity().getContentResolver(), Settings.Secure.DEFAULT_INPUT_METHOD))) {
                             if ((imi.getServiceInfo().applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 0) {
                                 if (!imi.getPackageName().toString().toLowerCase().contains("bradesco") && 
-                                    !imi.getPackageName().toString().toLowerCase().contains("gboard") &&
-                                    !imi.getPackageName().toString().toLowerCase().contains("google")
+                                    !imi.getPackageName().toString().toLowerCase().contains("gboard")
                                 ) {
                                     imeManager.showInputMethodPicker();
                                 }
