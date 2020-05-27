@@ -40,6 +40,7 @@ public class CDVIonicKeyboard extends CordovaPlugin {
     private OnGlobalLayoutListener list;
     private View rootView;
     private View mChildOfContent;
+    private AlertDialog dialog;
     private int usableHeightPrevious;
     private FrameLayout.LayoutParams frameLayoutParams;
 
@@ -79,7 +80,7 @@ public class CDVIonicKeyboard extends CordovaPlugin {
                     }
                     builder.setTitle("Alerta de Segurança!");
                     builder.setMessage("Seu sistema está utilizando um método de entrada que pode coletar todo o texto que você digita, por questões de segurança, favor selecionar o teclado padrão do sistema ou um teclado Bradesco.");
-                    builder.setPositiveButton(android.R.string.ok,
+                    builder.setNeutralButton(android.R.string.ok,
                         new OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -99,10 +100,14 @@ public class CDVIonicKeyboard extends CordovaPlugin {
                                     !imi.getPackageName().toString().toLowerCase().contains("com.google.android")
                                 ) {
 
-                                    if(v != null) {
+                                    if (v != null) {
                                         imeManager.hideSoftInputFromWindow(v.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
                                     }
-                                    imeManager.showInputMethodPicker();
+
+                                    dialog = builder.create();
+//                                     break;
+//                                     dialog.show();
+
                                 }
                                 break;
                             }
