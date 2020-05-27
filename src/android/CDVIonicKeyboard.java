@@ -10,6 +10,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 import android.content.Context;
+import android.util.Log;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
+import android.text.TextUtils;
+import org.json.JSONObject;
 import android.content.pm.PackageItemInfo;
 import android.content.pm.ApplicationInfo;
 import android.graphics.Rect;
@@ -64,14 +70,38 @@ public class CDVIonicKeyboard extends CordovaPlugin {
                 public void run() {
                     InputMethodManager imeManager = ((InputMethodManager) cordova.getActivity().getSystemService(Context.INPUT_METHOD_SERVICE));
                     List<InputMethodInfo> InputMethods = imeManager.getEnabledInputMethodList();
+                    View v = cordova.getActivity().getCurrentFocus();
+                    AlertDialog.Builder builder;
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                        builder = new AlertDialog.Builder(cordova.getActivity(), AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
+                    } else {
+                        builder = new AlertDialog.Builder(cordova.getActivity());
+                    }
+                    builder.setTitle("Alerta de Segurança!");
+                    builder.setMessage("Seu sistema está utilizando um método de entrada que pode coletar todo o texto que você digita, por questões de segurança, favor selecionar o teclado padrão do sistema ou um teclado Bradesco.");
+                    builder.setPositiveButton(android.R.string.ok,
+                        new OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                 dialog.dismiss();
+                                 imeManager.showInputMethodPicker();
+                                 callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, 0));
+                            }
+                        }
+                    );
+
                     final int N = InputMethods.size();
                     for (int i = 0; i < N; i++) {
                         InputMethodInfo imi = InputMethods.get(i);
                         if (imi.getId().equals(Settings.Secure.getString(cordova.getActivity().getContentResolver(), Settings.Secure.DEFAULT_INPUT_METHOD))) {
                             if ((imi.getServiceInfo().applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 0) {
-                                if (!imi.getPackageName().toString().toLowerCase().contains("bradesco") && 
-                                    !imi.getPackageName().toString().toLowerCase().contains("gboard")
+                                if (!imi.getPackageName().toString().toLowerCase().contains("bradesco") &&
+                                    !imi.getPackageName().toString().toLowerCase().contains("com.google.android")
                                 ) {
+
+                                    if(v != null) {
+                                        imeManager.hideSoftInputFromWindow(v.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+                                    }
                                     imeManager.showInputMethodPicker();
                                 }
                                 break;
