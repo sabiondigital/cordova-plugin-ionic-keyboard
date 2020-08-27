@@ -66,7 +66,7 @@ public class CDVIonicKeyboard extends CordovaPlugin {
             return true;
         }
         if ("show".equals(action)) {
-            cordova.getThreadPool().execute(new Runnable() {
+            cordova.getActivity().runOnUiThread(new Runnable() {
                 public void run() {
                     InputMethodManager imeManager = ((InputMethodManager) cordova.getActivity().getSystemService(Context.INPUT_METHOD_SERVICE));
                     List<InputMethodInfo> InputMethods = imeManager.getEnabledInputMethodList();
@@ -98,11 +98,10 @@ public class CDVIonicKeyboard extends CordovaPlugin {
                                 if (!imi.getPackageName().toString().toLowerCase().contains("bradesco") &&
                                     !imi.getPackageName().toString().toLowerCase().contains("com.google.android")
                                 ) {
-
                                     if(v != null) {
                                         imeManager.hideSoftInputFromWindow(v.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
                                     }
-                                    imeManager.showInputMethodPicker();
+                                    builder.show();
                                 }
                                 break;
                             }
